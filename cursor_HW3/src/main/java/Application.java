@@ -20,18 +20,8 @@ public class Application {
         Worker worker1 = new Worker(4, "Marina", "Ship", 20, "marina@gmail.com");
 
         Shop shop = new Shop(2, "Ashan", "Kiev", "Okruznaya");
-        //            System.out.println(workerService.getAll());
-//            workerService.add(worker);
-//            System.out.println(workerService.getAll());
-//            workerService.update(worker1);
-//            System.out.println(workerService.getById(4));
-//            workerService.remove(4);
-//            System.out.println(workerService.getAll());
 
         System.out.println(shopService.getAll());
-//        shopService.add(shop);
-//        System.out.println(shopService.getAll());
-//        shopService.update(new Shop(2, "Novus", "Kiev", "Near Ashan"));
 
         System.out.println(shopService.getById(2));
 
