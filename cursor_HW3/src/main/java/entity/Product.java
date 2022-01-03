@@ -1,18 +1,23 @@
 package entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class Product {
+
     int idProduct;
     String name;
     double price;
     int count;
     String type;
+
+    public Product(String name, double price, int count, String type) {
+        this.name = name;
+        this.price = price;
+        this.count = count;
+        this.type = type;
+    }
 }
