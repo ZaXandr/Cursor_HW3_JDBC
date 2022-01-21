@@ -1,8 +1,8 @@
-package dbSelect;
+package com.zakharov.dbSelect;
 
-import entity.Product;
-import entity.Shop;
-import entity.Worker;
+import com.zakharov.entity.Product;
+import com.zakharov.entity.Shop;
+import com.zakharov.entity.Worker;
 
 import java.sql.*;
 import java.util.ArrayList;

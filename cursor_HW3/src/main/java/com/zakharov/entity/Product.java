@@ -1,4 +1,4 @@
-package entity;
+package com.zakharov.entity;
 
 
 import lombok.Data;

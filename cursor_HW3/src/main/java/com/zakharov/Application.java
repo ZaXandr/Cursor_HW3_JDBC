@@ -1,4 +1,6 @@
-import dbSelect.DbSelect;
+package com.zakharov;
+
+import com.zakharov.dbSelect.DbSelect;
 
 public class Application {
 
