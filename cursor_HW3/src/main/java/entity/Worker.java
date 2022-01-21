@@ -1,13 +1,9 @@
 package entity;
 
-import lombok.*;
 
-import java.lang.annotation.Target;
+import lombok.Data;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
 public class Worker {
 
     private int idWorker;

@@ -30,14 +30,20 @@ public class DbSelect {
         }
     }
 
-    //1
     public List<Worker> getWorkers() {
         List<Worker> lst = new ArrayList<>();
         try {
             statement = connection.createStatement();
-            resultSet = statement.executeQuery("SELECT * FROM cursor.worker");
+            resultSet = statement.executeQuery("SELECT worker_id, first_name, second_name, age, address " +
+                    "FROM cursor.staff");
             while (resultSet.next()) {
-                lst.add(buildWorker(resultSet));
+                Worker worker = new Worker();
+                worker.setIdWorker(resultSet.getInt("worker_id"));
+                worker.setFirstName(resultSet.getString("first_name"));
+                worker.setSecondName(resultSet.getString("second_name"));
+                worker.setAge(resultSet.getInt("age"));
+                worker.setAddress(resultSet.getString("address"));
+                lst.add(worker);
             }
             statement.close();
             resultSet.close();
@@ -47,16 +53,22 @@ public class DbSelect {
         return lst;
     }
 
-    //2
     public List<Product> getProductsByPrice(double min, double max) {
         List<Product> lst = new ArrayList<>();
         try {
-            preparedStatement = connection.prepareStatement("select *from cursor.product WHERE Price BETWEEN ? AND ?");
+            preparedStatement = connection.prepareStatement("SELECT product_id, product_name, price, count, type " +
+                    "FROM cursor.products WHERE price BETWEEN ? AND ?");
             preparedStatement.setDouble(1, min);
             preparedStatement.setDouble(2, max);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                lst.add(buildProduct(resultSet));
+                Product product = new Product();
+                product.setIdProduct(resultSet.getInt("product_id"));
+                product.setName(resultSet.getString("product_name"));
+                product.setPrice(resultSet.getDouble("price"));
+                product.setCount(resultSet.getInt("count"));
+                product.setType(resultSet.getString("type"));
+                lst.add(product);
             }
             preparedStatement.close();
             resultSet.close();
@@ -66,16 +78,22 @@ public class DbSelect {
         return lst;
     }
 
-    //3
     public List<Product> getProdByPriceAndType(double price, String type) {
         List<Product> lst = new ArrayList<>();
         try {
-            preparedStatement = connection.prepareStatement("SELECT * FROM cursor.product WHERE Price<? AND Type=?");
+            preparedStatement = connection.prepareStatement("SELECT product_id, product_name, price, count, type "
+                    + "FROM cursor.products WHERE price<? AND type=?");
             preparedStatement.setDouble(1, price);
             preparedStatement.setString(2, type);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                lst.add(buildProduct(resultSet));
+                Product product = new Product();
+                product.setIdProduct(resultSet.getInt("product_id"));
+                product.setName(resultSet.getString("product_name"));
+                product.setPrice(resultSet.getDouble("price"));
+                product.setCount(resultSet.getInt("count"));
+                product.setType(resultSet.getString("type"));
+                lst.add(product);
             }
             preparedStatement.close();
             resultSet.close();
@@ -85,15 +103,21 @@ public class DbSelect {
         return lst;
     }
 
-    //4
     public List<Shop> getShopByStreet(String name) {
         List<Shop> lst = new ArrayList<>();
         try {
-            preparedStatement = connection.prepareStatement("select * from cursor.shop WHERE Street LIKE ? ");
+            preparedStatement = connection.prepareStatement("SELECT shop_id, shop_name, city, street FROM cursor.shops " +
+                    "WHERE street LIKE ? ");
             preparedStatement.setString(1, '%' + name + '%');
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                lst.add(buildShop(resultSet));
+                Shop shop = new Shop();
+
+                shop.setIdShop(resultSet.getInt("shop_id"));
+                shop.setName(resultSet.getString("shop_name"));
+                shop.setCity(resultSet.getString("city"));
+                shop.setStreet(resultSet.getString("street"));
+                lst.add(shop);
             }
             preparedStatement.close();
             resultSet.close();
@@ -104,15 +128,21 @@ public class DbSelect {
         return lst;
     }
 
-    //5
     public Worker getWorkerById(int id) {
         Worker worker = new Worker();
         try {
-            preparedStatement = connection.prepareStatement("SELECT * FROM cursor.product WHERE idProduct = ?");
+            preparedStatement = connection.prepareStatement("SELECT worker_id, first_name, second_name, age, address " +
+                    "FROM cursor.staff WHERE worker_id = ?");
             preparedStatement.setInt(1, id);
             resultSet = preparedStatement.executeQuery();
             resultSet.next();
-            worker = buildWorker(resultSet);
+
+            worker.setIdWorker(resultSet.getInt("worker_id"));
+            worker.setFirstName(resultSet.getString("first_name"));
+            worker.setSecondName(resultSet.getString("second_name"));
+            worker.setAge(resultSet.getInt("age"));
+            worker.setAddress(resultSet.getString("address"));
+
             preparedStatement.close();
             resultSet.close();
         } catch (SQLException e) {
@@ -122,41 +152,9 @@ public class DbSelect {
         return worker;
     }
 
-    private Shop buildShop(ResultSet resultSet) throws SQLException {
-        Shop shop = new Shop();
-
-        shop.setIdShop(resultSet.getInt(1));
-        shop.setName(resultSet.getString(2));
-        shop.setCity(resultSet.getString(3));
-        shop.setStreet(resultSet.getString(4));
-        return shop;
-
-    }
-
-    private Product buildProduct(ResultSet resultSet) throws SQLException {
-        Product product = new Product();
-        product.setIdProduct(resultSet.getInt(1));
-        product.setName(resultSet.getString(2));
-        product.setPrice(resultSet.getDouble(3));
-        product.setCount(resultSet.getInt(4));
-        product.setType(resultSet.getString(5));
-        return product;
-    }
-
-    private Worker buildWorker(ResultSet resultSet) throws SQLException {
-        Worker worker = new Worker();
-        worker.setIdWorker(resultSet.getInt(1));
-        worker.setFirstName(resultSet.getString(2));
-        worker.setSecondName(resultSet.getString(3));
-        worker.setAge(resultSet.getInt(4));
-        worker.setAddress(resultSet.getString(5));
-        return worker;
-    }
-
     public void closeConnection() {
         try {
             connection.close();
-            System.out.println("Connection close");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
