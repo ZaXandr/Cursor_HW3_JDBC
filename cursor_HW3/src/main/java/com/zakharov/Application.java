@@ -1,7 +1,5 @@
 package com.zakharov;
 
-import com.zakharov.dbSelect.DbSelect;
-
 public class Application {
 
     public static void main(String[] args) {
@@ -13,7 +11,6 @@ public class Application {
         System.out.println(database.getWorkerById(2));
         System.out.println(database.getProdByPriceAndType(30, "Vegetable"));
 
-        database.closeConnection();
     }
 
 

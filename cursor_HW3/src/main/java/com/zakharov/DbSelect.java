@@ -1,4 +1,4 @@
-package com.zakharov.dbSelect;
+package com.zakharov;
 
 import com.zakharov.entity.Product;
 import com.zakharov.entity.Shop;
@@ -14,28 +14,27 @@ public class DbSelect {
     private static final String URL = "jdbc:mysql://localhost:3306/cursor";
     private static final String USER = "root";
     private static final String PASSWORD = "1234";
-    private Connection connection;
-    private PreparedStatement preparedStatement;
-    private Statement statement;
-    private ResultSet resultSet;
-
 
     public DbSelect() {
         try {
             Class.forName(DB_DRIVER);
-            this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            System.out.println("Connection error");
         }
+    }
+
+    public Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
     public List<Worker> getWorkers() {
         List<Worker> lst = new ArrayList<>();
-        try {
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery("SELECT worker_id, first_name, second_name, age, address " +
-                    "FROM cursor.staff");
+        final String sql = "SELECT worker_id, first_name, second_name, age, address FROM cursor.staff";
+        try (
+                final Statement statement = getConnection().createStatement();
+                final ResultSet resultSet = statement.executeQuery(sql)
+        ) {
+
             while (resultSet.next()) {
                 Worker worker = new Worker();
                 worker.setIdWorker(resultSet.getInt("worker_id"));
@@ -45,8 +44,6 @@ public class DbSelect {
                 worker.setAddress(resultSet.getString("address"));
                 lst.add(worker);
             }
-            statement.close();
-            resultSet.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -55,12 +52,14 @@ public class DbSelect {
 
     public List<Product> getProductsByPrice(double min, double max) {
         List<Product> lst = new ArrayList<>();
-        try {
-            preparedStatement = connection.prepareStatement("SELECT product_id, product_name, price, count, type " +
-                    "FROM cursor.products WHERE price BETWEEN ? AND ?");
+        final String sql = "SELECT product_id, product_name, price, count, type FROM cursor.products WHERE price BETWEEN ? AND ?";
+        try (
+                final PreparedStatement preparedStatement = getConnection().prepareStatement(sql);
+        ) {
             preparedStatement.setDouble(1, min);
             preparedStatement.setDouble(2, max);
-            resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
+
             while (resultSet.next()) {
                 Product product = new Product();
                 product.setIdProduct(resultSet.getInt("product_id"));
@@ -69,8 +68,8 @@ public class DbSelect {
                 product.setCount(resultSet.getInt("count"));
                 product.setType(resultSet.getString("type"));
                 lst.add(product);
+
             }
-            preparedStatement.close();
             resultSet.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -80,12 +79,14 @@ public class DbSelect {
 
     public List<Product> getProdByPriceAndType(double price, String type) {
         List<Product> lst = new ArrayList<>();
-        try {
-            preparedStatement = connection.prepareStatement("SELECT product_id, product_name, price, count, type "
-                    + "FROM cursor.products WHERE price<? AND type=?");
+        final String sql = "SELECT product_id, product_name, price, count, type FROM cursor.products WHERE price<? AND type=?";
+        try (
+                final PreparedStatement preparedStatement = getConnection().prepareStatement(sql);
+        ) {
             preparedStatement.setDouble(1, price);
             preparedStatement.setString(2, type);
-            resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
+
             while (resultSet.next()) {
                 Product product = new Product();
                 product.setIdProduct(resultSet.getInt("product_id"));
@@ -94,8 +95,9 @@ public class DbSelect {
                 product.setCount(resultSet.getInt("count"));
                 product.setType(resultSet.getString("type"));
                 lst.add(product);
+
+
             }
-            preparedStatement.close();
             resultSet.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -105,11 +107,13 @@ public class DbSelect {
 
     public List<Shop> getShopByStreet(String name) {
         List<Shop> lst = new ArrayList<>();
-        try {
-            preparedStatement = connection.prepareStatement("SELECT shop_id, shop_name, city, street FROM cursor.shops " +
-                    "WHERE street LIKE ? ");
+        final String sql = "SELECT shop_id, shop_name, city, street FROM cursor.shops WHERE street LIKE ? ";
+        try (
+                final PreparedStatement preparedStatement = getConnection().prepareStatement(sql);
+        ) {
             preparedStatement.setString(1, '%' + name + '%');
-            resultSet = preparedStatement.executeQuery();
+            final ResultSet resultSet = preparedStatement.executeQuery();
+
             while (resultSet.next()) {
                 Shop shop = new Shop();
 
@@ -119,7 +123,6 @@ public class DbSelect {
                 shop.setStreet(resultSet.getString("street"));
                 lst.add(shop);
             }
-            preparedStatement.close();
             resultSet.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -129,21 +132,23 @@ public class DbSelect {
     }
 
     public Worker getWorkerById(int id) {
-        Worker worker = new Worker();
-        try {
-            preparedStatement = connection.prepareStatement("SELECT worker_id, first_name, second_name, age, address " +
-                    "FROM cursor.staff WHERE worker_id = ?");
+        Worker worker = null;
+        final String sql = "SELECT worker_id, first_name, second_name, age, address FROM cursor.staff WHERE worker_id = ?";
+        try (
+                final PreparedStatement preparedStatement = getConnection().prepareStatement(sql);
+        ) {
             preparedStatement.setInt(1, id);
-            resultSet = preparedStatement.executeQuery();
+
+            final ResultSet resultSet = preparedStatement.executeQuery();
             resultSet.next();
 
+            worker = new Worker();
             worker.setIdWorker(resultSet.getInt("worker_id"));
             worker.setFirstName(resultSet.getString("first_name"));
             worker.setSecondName(resultSet.getString("second_name"));
             worker.setAge(resultSet.getInt("age"));
             worker.setAddress(resultSet.getString("address"));
 
-            preparedStatement.close();
             resultSet.close();
         } catch (SQLException e) {
             System.out.println(e.getLocalizedMessage());
@@ -151,15 +156,5 @@ public class DbSelect {
 
         return worker;
     }
-
-    public void closeConnection() {
-        try {
-            connection.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-
-    }
-
 }
 
